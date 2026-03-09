@@ -20,7 +20,7 @@ export default function Exams() {
     return subject ? subject.name : "Neznámý předmět";
   };
 
-  // Sort exams by date
+  //serazeni podle data
   const sortedExams = [...exams].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
 
   return (
