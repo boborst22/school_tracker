@@ -65,7 +65,7 @@ export default function Subjects() {
         <input
           value={name}
           onChange={(e) => setName(e.target.value)}
-          placeholder="Nazev noveho predmetu..."
+          placeholder="Název nového předmětu..."
           style={{ flex: 1 }}
 
           // pokud uzivatel zmackne Enter prida se predmet
@@ -74,7 +74,7 @@ export default function Subjects() {
 
         {/* tlacitko pro pridani predmetu */}
         <button className="primary" onClick={handleAddSubject}>
-          + Pridat predmet
+          + Přidat předmět
         </button>
       </div>
 
@@ -84,7 +84,7 @@ export default function Subjects() {
         {/* pokud nejsou zadne predmety zobraz hlasku */}
         {subjects.length === 0 && (
           <div className="empty-state" style={{ gridColumn: "1 / -1" }}>
-            Zatim nemate zadne predmety.
+            Zatím nemáte žádne předměty.
           </div>
         )}
 
@@ -110,7 +110,7 @@ export default function Subjects() {
             {/* seznam znamek */}
             <div>
 
-              <div>ZNAMKY</div>
+              <div>ZNÁMKY</div>
 
               <div>
 
@@ -134,7 +134,7 @@ export default function Subjects() {
                 ) : (
 
                   // pokud nejsou znamky
-                  <span>Zadne znamky</span>
+                  <span>Žádné známky</span>
                 )}
 
               </div>
@@ -163,7 +163,7 @@ export default function Subjects() {
 
               {/* tlacitko pro pridani znamky */}
               <button onClick={() => handleAddGrade(s.id)}>
-                Pridat
+                Přidat
               </button>
 
             </div>

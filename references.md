@@ -1,0 +1,1 @@
+Většina návrhu UI a designových prvků v tomto projektu byla generována s pomocí AI, [Gemini](https://gemini.com)  

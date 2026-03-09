@@ -35,30 +35,30 @@ export default function Stats() {
 
         {/* karta pocet predmetu */}
         <div className="card" style={{ textAlign: "center", marginBottom: 0 }}>
-          <div>Pocet predmetu</div>
+          <div>Počet předmětů</div>
           <div>{totalSubjects}</div>
         </div>
 
         {/* karta pocet testu */}
         <div className="card" style={{ textAlign: "center", marginBottom: 0 }}>
-          <div>Pocet testu</div>
+          <div>Počet testů</div>
           <div>{totalExams}</div>
         </div>
 
         {/* karta prumerna znamka */}
         <div className="card" style={{ textAlign: "center", marginBottom: 0 }}>
-          <div>Prumerna znamka</div>
+          <div>Průměrná známka</div>
           <div>{averageGrade}</div>
         </div>
 
       </div>
 
       {/* seznam prumeru podle predmetu */}
-      <h2>Prumery dle predmetu</h2>
+      <h2>Průměry dle předmětů</h2>
 
       {/* pokud nejsou zadne predmety */}
       {subjects.length === 0 ? (
-        <p className="empty-state">Zadne predmety.</p>
+        <p className="empty-state">Žádné předměty.</p>
       ) : (
 
         <div className="card">
