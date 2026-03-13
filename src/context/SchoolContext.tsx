@@ -1,29 +1,20 @@
 // importujeme funkce z Reactu
-// createContext = vytvori sdilene misto pro data
-// useContext = komponenty si z toho umi vzit data
-// useState = uklada stav (data)
-// useEffect = spusti kod kdyz se neco zmeni
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
+import { useAuth } from "./AuthContext";
 
-// typ predmeta
-// kazdy predmet ma id, nazev a seznam znamek
 export interface Subject {
     id: string;
     name: string;
     grades: number[];
 }
 
-// typ testu
-// test patri k nejakemu predmetu pomoci subjectId
 export interface Exam {
     id: string;
     subjectId: string;
     date: string;
-    topic?: string; // tema je nepovinne
+    topic?: string;
 }
 
-// typ pro cely context
-// rika jaka data a funkce budou dostupna v aplikaci
 interface SchoolContextType {
     subjects: Subject[];
     exams: Exam[];
@@ -35,106 +26,113 @@ interface SchoolContextType {
     deleteExam: (id: string) => void;
 }
 
-// vytvoreni contextu pro sdileni dat v aplikaci
 const SchoolContext = createContext<SchoolContextType | undefined>(undefined);
 
-// provider ktery bude obalovat aplikaci
-// diky tomu budou vsechny komponenty mit pristup k datum
 export function SchoolProvider({ children }: { children: ReactNode }) {
+    const { user } = useAuth();
+    const URL : string = import.meta.env.VITE_API_URL;
+    const [subjects, setSubjects] = useState<Subject[]>([]);
+    const [exams, setExams] = useState<Exam[]>([]);
 
-    // stav pro predmety
-    // pri startu aplikace se pokusi nacist data z localStorage
-    const [subjects, setSubjects] = useState<Subject[]>(() => {
-        const stored = localStorage.getItem("school_subjects");
-        return stored ? JSON.parse(stored) : [];
-    });
-
-    // stav pro testy
-    const [exams, setExams] = useState<Exam[]>(() => {
-        const stored = localStorage.getItem("school_exams");
-        return stored ? JSON.parse(stored) : [];
-    });
-
-    // kdykoliv se zmeni predmety, ulozi se do localStorage
+    // Načtení dat ze serveru po přihlášení
     useEffect(() => {
-        localStorage.setItem("school_subjects", JSON.stringify(subjects));
-    }, [subjects]);
+        if (!user) {
+            setSubjects([]);
+            setExams([]);
+            return;
+        }
+        
+        const loadData = async () => {
+            try {
+                const response = await fetch(URL+ "data", {
+                    headers: { Authorization: `Bearer ${user.token}` }
+                });
+                if (response.ok) {
+                    const data = await response.json();
+                    setSubjects(data.subjects || []);
+                    setExams(data.exams || []);
+                }
+            } catch (err) {
+                console.error("Chyba při načítání dat pro uživatele:", err);
+            }
+        };
 
-    // kdykoliv se zmeni testy, ulozi se do localStorage
-    useEffect(() => {
-        localStorage.setItem("school_exams", JSON.stringify(exams));
-    }, [exams]);
+        loadData();
+    }, [user]);
 
-    // prida novy predmet
+    // Uložení dat na server při každé změně
+    const saveDataToBackend = async (newSubjects: Subject[], newExams: Exam[]) => {
+        if (!user) return;
+        try {
+            await fetch(URL+"data", {
+                method: "POST",
+                headers: { 
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${user.token}` 
+                },
+                body: JSON.stringify({ subjects: newSubjects, exams: newExams })
+            });
+        } catch (err) {
+            console.error("Chyba uložení dat:", err);
+        }
+    };
+
     const addSubject = (name: string) => {
-
-        // vytvoreni noveho predmetu
         const newSubject: Subject = {
-            id: crypto.randomUUID(), // vygeneruje nahodne id
+            id: crypto.randomUUID(),
             name,
             grades: []
         };
-
-        // prida ho do seznamu predmetu
-        setSubjects([...subjects, newSubject]);
+        const newSubjects = [...subjects, newSubject];
+        setSubjects(newSubjects);
+        saveDataToBackend(newSubjects, exams);
     };
 
-    // smaze predmet podle id
     const deleteSubject = (id: string) => {
-
-        // odstrani predmet ze seznamu
-        setSubjects(subjects.filter((s) => s.id !== id));
-
-        // smaze i testy ktere patri k tomuto predmetu
-        setExams(exams.filter((e) => e.subjectId !== id));
+        const newSubjects = subjects.filter((s) => s.id !== id);
+        const newExams = exams.filter((e) => e.subjectId !== id);
+        
+        setSubjects(newSubjects);
+        setExams(newExams);
+        saveDataToBackend(newSubjects, newExams);
     };
 
-    // prida znamku k predmetu
     const addGrade = (subjectId: string, grade: number) => {
-
-        // projde vsechny predmety
-        setSubjects(
-            subjects.map((s) =>
-                // pokud je to spravny predmet, prida znamku
-                s.id === subjectId
-                    ? { ...s, grades: [...s.grades, grade] }
-                    : s
-            )
+        const newSubjects = subjects.map((s) =>
+            s.id === subjectId
+                ? { ...s, grades: [...s.grades, grade] }
+                : s
         );
+        setSubjects(newSubjects);
+        saveDataToBackend(newSubjects, exams);
     };
 
-    // smaze znamku z predmetu
     const deleteGrade = (subjectId: string, gradeIndex: number) => {
-
-        setSubjects(
-            subjects.map((s) =>
-                s.id === subjectId
-                    // filtr odstrani znamku podle indexu
-                    ? { ...s, grades: s.grades.filter((_, i) => i !== gradeIndex) }
-                    : s
-            )
+        const newSubjects = subjects.map((s) =>
+            s.id === subjectId
+                ? { ...s, grades: s.grades.filter((_, i) => i !== gradeIndex) }
+                : s
         );
+        setSubjects(newSubjects);
+        saveDataToBackend(newSubjects, exams);
     };
 
-    // prida novy test
     const addExam = (examData: Omit<Exam, "id">) => {
-
-        // vytvori novy test
         const newExam: Exam = {
             ...examData,
             id: crypto.randomUUID(),
         };
-
-        // prida ho do seznamu testu
-        setExams([...exams, newExam]);
+        const newExams = [...exams, newExam];
+        setExams(newExams);
+        saveDataToBackend(subjects, newExams);
     };
 
-    // smaze test podle id
     const deleteExam = (id: string) => {
-        setExams(exams.filter((e) => e.id !== id));
+        const newExams = exams.filter((e) => e.id !== id);
+        setExams(newExams);
+        saveDataToBackend(subjects, newExams);
     };
 
-    // provider ktery poskytne data cele aplikaci
     return (
         <SchoolContext.Provider
             value={{
@@ -153,15 +151,10 @@ export function SchoolProvider({ children }: { children: ReactNode }) {
     );
 }
 
-// vlastni hook pro jednoduche pouziti contextu
 export function useSchool() {
-
     const context = useContext(SchoolContext);
-
-    // ochrana aby se hook nepouzil mimo provider
     if (!context) {
         throw new Error("useSchool must be used within a SchoolProvider");
     }
-
     return context;
 }

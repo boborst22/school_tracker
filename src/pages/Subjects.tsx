@@ -5,12 +5,6 @@ import { useSchool } from "../context/SchoolContext";
 // zobrazuje seznam predmetu a jejich znamky
 export default function Subjects() {
 
-  // ziskani dat a funkci z globalniho SchoolContextu
-  // subjects = seznam vsech predmetu
-  // addSubject = prida novy predmet
-  // addGrade = prida znamku k predmetu
-  // deleteSubject = smaze predmet
-  // deleteGrade = smaze konkretni znamku
   const { subjects, addSubject, addGrade, deleteSubject, deleteGrade } = useSchool();
 
   // lokalni state pro input nazvu noveho predmetu

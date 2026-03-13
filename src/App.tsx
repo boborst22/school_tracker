@@ -5,6 +5,7 @@ import Exams from "./pages/Exams";
 import Stats from "./pages/Stats";
 import Home from "./pages/Home";
 import Login from "./pages/Login";
+import Register from "./pages/Register";
 import { SchoolProvider } from "./context/SchoolContext";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 
@@ -37,6 +38,7 @@ export default function App() {
             {/* verejne stranky dostupne vsem */}
             <Route path="/" element={<Home />} />
             <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
 
             {/* chranene stranky dostupne pouze po prihlaseni */}
             <Route path="/subjects" element={

@@ -1,0 +1,23 @@
+[
+  {
+    "id": 1,
+    "username": "emilys",
+    "firstName": "Emily",
+    "lastName": "Smith",
+    "passwordHash": "$2b$10$OELTONkX/Q3gZDNatn6et5fAtRUw66BISK2Pi9/HPn"
+  },
+  {
+    "id": 1773392870377,
+    "username": "testuser",
+    "firstName": "Test",
+    "lastName": "User",
+    "passwordHash": "$2b$10$AvjOfoHQtk4QXqmZ5C4Fie7H4HCmJAfdsrsSnXuDpiUE77ySDr1t2"
+  },
+  {
+    "id": 1773393060936,
+    "username": "burdys",
+    "firstName": "Štěpán",
+    "lastName": "Boboras",
+    "passwordHash": "$2b$10$bEmjzEPQl0fsjrKSspDO1OUYdr8V9cGaeA9IB50NdHhWtAmWrnWdK"
+  }
+]

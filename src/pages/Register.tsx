@@ -1,46 +1,42 @@
-// Gemini (https://gemini.com)  -----------------------------------------
-
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 
-// stranka pro prihlaseni uzivatele
-export default function Login() {
+export default function Register() {
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
+    const [firstName, setFirstName] = useState("");
+    const [lastName, setLastName] = useState("");
     const [error, setError] = useState("");
     const [loading, setLoading] = useState(false);
     const URL : string = import.meta.env.VITE_API_URL;
-    // funkce pro prihlaseni z contextu
     const { login } = useAuth();
-    // hook pro presmerovani na jinou stranku
     const navigate = useNavigate();
 
-    // obsluha odeslani formulare
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setError("");
         setLoading(true);
 
         try {
-            // overeni hesla proti lokalnimu backendu
-            const response = await fetch(URL + "auth/login", {
+            const response = await fetch(URL+ "auth/register", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
                     username,
                     password,
+                    firstName,
+                    lastName,
                 }),
             });
 
             const data = await response.json();
 
-            // pokud endpoint vrati ze je to spatne
             if (!response.ok) {
-                throw new Error(data.message || "Neplatné jméno nebo heslo");
+                throw new Error(data.message || "Chyba při registraci");
             }
 
-            // prihlaseni se zadarilo
+            // automatické přihlášení po úspěšné registraci
             login({
                 id: data.id,
                 username: data.username,
@@ -49,7 +45,6 @@ export default function Login() {
                 token: data.token
             });
 
-            // po uspesnem prihlaseni presmerovat na predmety
             navigate("/subjects");
         } catch (err: any) {
             setError(err.message);
@@ -59,25 +54,45 @@ export default function Login() {
     };
 
     return (
-        <div style={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: "60vh" }}>
+        <div style={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: "60vh", margin: "2rem 0" }}>
             <div className="card" style={{ width: "100%", maxWidth: "400px" }}>
 
                 <div className="header-container" style={{ textAlign: "center", marginBottom: "2rem" }}>
-                    <h1 style={{ fontSize: "2rem" }}>Přihlášení</h1>
+                    <h1 style={{ fontSize: "2rem" }}>Registrace</h1>
                     <p style={{ color: "var(--color-text-secondary)" }}>
-                        Zadejte své údaje
+                        Vytvořte si nový účet
                     </p>
                 </div>
 
-                {/* pokud je chyba, zobraz blok s chybou */}
                 {error && (
                     <div style={{ backgroundColor: "var(--color-danger)", color: "white", padding: "1rem", borderRadius: "var(--radius-sm)", marginBottom: "1rem", textAlign: "center" }}>
                         {error}
                     </div>
                 )}
 
-                {/* formulář přihlášení */}
                 <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+
+                    <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+                        <label htmlFor="firstName">Jméno</label>
+                        <input
+                            id="firstName"
+                            type="text"
+                            value={firstName}
+                            onChange={(e) => setFirstName(e.target.value)}
+                            required
+                        />
+                    </div>
+
+                    <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+                        <label htmlFor="lastName">Příjmení</label>
+                        <input
+                            id="lastName"
+                            type="text"
+                            value={lastName}
+                            onChange={(e) => setLastName(e.target.value)}
+                            required
+                        />
+                    </div>
 
                     <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
                         <label htmlFor="username">Uživatelské jméno</label>
@@ -98,16 +113,17 @@ export default function Login() {
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
                             required
+                            minLength={6}
                         />
                     </div>
 
                     <button type="submit" className="primary" disabled={loading} style={{ marginTop: "1rem" }}>
-                        {loading ? "Přihlašuji..." : "Přihlásit se"}
+                        {loading ? "Registruji..." : "Zaregistrovat se"}
                     </button>
                     
                     <div style={{ textAlign: "center", marginTop: "1rem" }}>
-                        <Link to="/register" style={{ color: "var(--color-primary)", textDecoration: "none" }}>
-                            Nemáte účet? Zaregistrujte se.
+                        <Link to="/login" style={{ color: "var(--color-primary)", textDecoration: "none" }}>
+                            Již máte účet? Přihlaste se.
                         </Link>
                     </div>
                 </form>
@@ -116,5 +132,3 @@ export default function Login() {
         </div>
     );
 }
-
-//-------------------------------
